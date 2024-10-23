@@ -74,3 +74,8 @@ end
 select dbo.CheckStudentName(1)
 select dbo.CheckStudentName(13)
 select dbo.CheckStudentName(14)
+----------------------------------------------------------------------------
+
+use Company_SD
+--5. Create inline function that takes integer which represents manager
+--ID and displays department name, Manager Name and hiring datecreate function DisplayData(@manager_Id int)returns table as return (	select e.Fname ,d.Dname as Department_Name,d.[MGRStart Date] as Hiring_date 	from Employee e join Departments d on d.MGRSSN = e.SSN 		where(e.SSN = @manager_Id))SELECT * FROM DisplayData(512463)
