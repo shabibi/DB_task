@@ -49,3 +49,28 @@ return
 end
 
 select * from DisplayInfo(1)
+
+--------------------------------------------------------------------------------
+--4. Create a scalar function that takes Student ID and returns a message to user 
+create function CheckStudentName (@Student_Id int)
+returns nvarchar(100)
+begin
+	declare @Full_name nvarchar(100)
+	declare @First_name nvarchar(50) 
+	declare @Last_name nvarchar(50)
+	select @First_name = St_Fname ,@Last_name = St_Lname from Student
+	where St_Id = @Student_Id
+		if(@First_name is null and @Last_name is null)
+			set @Full_name =  'First name & last name are null'
+		else if (@First_name is null)
+			set @Full_name =  'first name is null'
+		else if ( @Last_name is null)
+			set @Full_name =  'last name is null'
+		else 
+			set @Full_name =  'First name & last name are not null'
+	return @Full_name
+end
+ drop function dbo.CheckStudentName
+select dbo.CheckStudentName(1)
+select dbo.CheckStudentName(13)
+select dbo.CheckStudentName(14)
