@@ -35,3 +35,17 @@ end
 
 select * from gitValue(1,9)
 
+---------------------------------------------------------------------------
+--3. Create inline function that takes Student No and
+--returns Department Name with Student full name.
+create function DisplayInfo (@Student_Id int)
+returns  @t table ( Full_Name nvarchar(20),dep_Name varchar(20))
+as
+begin
+	insert into @t
+	select s.St_Fname + ' '+ s.St_Lname ,s.Dept_Id
+				from Student s where s.St_Id = @Student_Id
+return
+end
+
+select * from DisplayInfo(1)
