@@ -163,3 +163,23 @@ while @@fetch_status=0
     end
 close c1
 deallocate c1
+------------------------------------------------------------------------
+--8. Display Department name with its manager name using cursor.
+declare @Dep_Name nvarchar(20)
+declare @Man_Name nvarchar(20)
+declare @Man_Id int
+declare c1 Cursor
+for select d.Dname, d.MGRSSN
+    from Departments d
+
+
+open c1
+fetch next from c1 into @Dep_Name,@Man_Id
+while @@fetch_status=0
+    begin
+		select @Man_Name = e.Fname  from Employee e where e.SSN = @Man_Id
+		select @Dep_Name as [Department Name] , @Man_Name As [Manager Name]
+        fetch c1 into @Dep_Name,@Man_Id
+    end
+close c1
+deallocate c1
