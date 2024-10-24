@@ -137,3 +137,29 @@ select* from GetStudentInfo('full name')
 
 select* from GetStudentInfo('first name')
 select* from GetStudentInfo('last name')
+----------------------------------------------------------------------------
+use Company_SD
+--7. Create a cursor for Employee table that increases Employee salary by 
+--10% if Salary <3000 and increases it by 20% if Salary >=3000. Use company DB 
+
+declare c1 Cursor
+for select salary
+    from Employee
+for update
+declare @sal int
+open c1
+fetch next from c1 into @sal
+while @@fetch_status=0
+    begin
+        if @sal<3000
+            update Employee
+                set salary += @sal * 0.1
+            where current of c1
+        else
+            update Employee
+                set Salary += @sal * 0.2
+            where current of c1
+        fetch c1 into @sal
+    end
+close c1
+deallocate c1
