@@ -15,7 +15,8 @@ end
 select dbo.gitMonth('2024-8-29') as Month
 --------------------------------------------------------------------------------------
 --. Create a multi-statements table-valued function that 
---takes 2 integers and returns the values between them.
+--takes 2 integers and returns the values between them.
+
 create function gitValue(@n1 int, @n2 int)
 returns @t table( x int)
 as 
@@ -78,4 +79,61 @@ select dbo.CheckStudentName(14)
 
 use Company_SD
 --5. Create inline function that takes integer which represents manager
---ID and displays department name, Manager Name and hiring datecreate function DisplayData(@manager_Id int)returns table as return (	select e.Fname ,d.Dname as Department_Name,d.[MGRStart Date] as Hiring_date 	from Employee e join Departments d on d.MGRSSN = e.SSN 		where(e.SSN = @manager_Id))SELECT * FROM DisplayData(512463)
+--ID and displays department name, Manager Name and hiring date
+create function DisplayData(@manager_Id int)
+returns table as 
+return 
+(
+	select e.Fname ,d.Dname as Department_Name,d.[MGRStart Date] as Hiring_date 
+	from Employee e join Departments d on d.MGRSSN = e.SSN 
+	
+	where(e.SSN = @manager_Id)
+
+)
+
+SELECT * FROM DisplayData(512463)
+
+----------------------------------------------------------------------------
+--6. Create multi-statements table-valued function that takes a string 
+--If string='first name' returns student first name 
+--If string='last name' returns student last name  
+--If string='full name' returns Full Name from student table 
+--Note: Use “ISNULL” function
+create function GetStudentInfo (@StuInfo nvarchar(100))
+returns @t table(StudentName nvarchar(100))
+begin
+
+	
+		if(@StuInfo ='first name' )
+		begin
+		insert into @t
+		select (ISNULL(St_Fname, ' '))
+		from Student
+		end
+
+		else if(@StuInfo ='last name' )
+		begin
+		insert into @t
+		select (ISNULL(St_Lname, ' '))
+		from Student
+		end
+
+		else if (@StuInfo ='full name' )
+		begin
+		insert into @t
+		select (ISNULL(St_Fname, ' ') +' '+ ISNULL(St_Lname, ' ') )
+		from Student
+		end
+		  else
+		  begin
+        INSERT INTO @t
+        VALUES ('Invalid InfoType');
+		end
+	
+	return 
+end
+
+select* from GetStudentInfo('full name')
+
+select* from GetStudentInfo('first name')
+select* from GetStudentInfo('last name')
