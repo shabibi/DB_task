@@ -183,3 +183,22 @@ while @@fetch_status=0
     end
 close c1
 deallocate c1
+------------------------------------------------------------------------
+--9. Try to display all instructor names in one cell separated by comma. Using Cursor
+use ITI
+declare c1 cursor
+for select distinct Ins_Name
+    from Instructor
+    where Ins_Name is not null
+for read only
+declare @name varchar(20),@all_names varchar(500)='' --> initial value
+open c1
+fetch c1 into @name
+while @@FETCH_STATUS=0
+    begin
+        set @all_names=concat(@all_names,',',@name)
+        fetch c1 into @name   
+    end
+select @all_names
+close c1
+deallocate C1
