@@ -23,3 +23,15 @@ as
 	join  Topic t  on t.Top_Id = c.Top_Id
 
 select * from displays_manager
+----------------------------------------------------------------------------------
+--3.Create a view that will display Instructor Name, 
+--Department Name for the ‘SD’ or ‘Java’ Department  
+create view displays_Instructor
+as 
+	select i.Ins_Name as [Instructor Name],d.Dept_Name as [Department Name]
+	from Instructor i join Department d
+	on i.Dept_Id = d.Dept_Id where d.Dept_Name in('SD' , 'Java') 
+
+select * from displays_Instructor
+
+----------------------------------------------------------------------------
