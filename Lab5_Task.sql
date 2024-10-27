@@ -101,3 +101,19 @@ else
   update Project 
   set Budget = 20000
   where Pnumber = 100
+  ------------------------------------------------------------------------
+
+  --5.Create a trigger to prevent anyone from inserting a new record in 
+  --the Department table [ITI DB]“Print a message for user to tell him 
+  --that he can’t insert a new record in that table”
+
+  use ITI 
+
+  create trigger InsertDepartment
+  on Department
+  instead of insert
+  as 
+  select 'Can’t insert a new record in Department table'
+
+  insert into Department values (10,'SD','System' ,'Cairo',1,'2000-01-01')
+
