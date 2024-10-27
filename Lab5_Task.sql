@@ -149,12 +149,54 @@ create table StudentAudit
   on Student
   after insert
   as
-  declare @note nvarchar  =  'Insert New Row in table Student'
-
   begin
-	insert into StudentAudit 
+    declare @note nvarchar(200)
+	DECLARE @keyValue INT  
+	declare c1 cursor for 
+		select St_Id from inserted
+	open c1
+	fetch next from c1 into @keyValue
+	
+	while @@FETCH_STATUS = 0
+	begin
+	set @note =FORMATMESSAGE('Insert New Row in table [Student] with Key=%d', @keyValue);
+  	insert into StudentAudit 
 	values (SYSTEM_USER, GETDATE(),@note)
+	FETCH NEXT FROM c1 INTO @keyValue;
+  end
+  close c1
+  DEALLOCATE c1
   end
 
 
-  insert into Student values(17,'Said','Ali','Alex',24,30,9)
+  insert into Student values(18,'Said','Ali','Alex',24,30,9)
+
+  -------------------------------------------------------------------------------
+--8.  Create a trigger on student table instead of delete
+--to add Row in Student Audit table (Server User Name, Date, Note) 
+--where note will be“ try to delete Row with Key=[Key Value]”
+
+  create trigger DeleteStudent
+  on Student
+  instead of delete  
+  as
+  begin
+    declare @note nvarchar(200)
+	DECLARE @keyValue INT  
+	declare c1 cursor for 
+		select St_Id from deleted
+	open c1
+	fetch next from c1 into @keyValue
+	
+	while @@FETCH_STATUS = 0
+	begin
+	set @note =FORMATMESSAGE('try to delete Row with Key= ', @keyValue);
+  	insert into StudentAudit 
+	values (SYSTEM_USER, GETDATE(),@note)
+	FETCH NEXT FROM c1 INTO @keyValue;
+  end
+  close c1
+  DEALLOCATE c1
+  end
+
+  delete from Student where St_Id = 1
