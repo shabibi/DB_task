@@ -132,3 +132,29 @@ else
 	end 
 
 	-----------------------------------------------------------------------------
+	--7. Create a trigger on student table after insert to add Row 
+	--in Student Audit table (Server User Name , Date, Note) where 
+	--note will be “[username] Insert New Row with Key=[Key Value] in table [table name]”
+
+create table StudentAudit 
+  (
+	
+	UserName nvarchar(100) ,
+	InsertDate  date,
+	Note nvarchar (200)
+
+  )
+
+  create trigger InsertStudent
+  on Student
+  after insert
+  as
+  declare @note nvarchar  =  'Insert New Row in table Student'
+
+  begin
+	insert into StudentAudit 
+	values (SYSTEM_USER, GETDATE(),@note)
+  end
+
+
+  insert into Student values(17,'Said','Ali','Alex',24,30,9)
