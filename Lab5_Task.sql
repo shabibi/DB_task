@@ -116,4 +116,19 @@ else
   select 'Can’t insert a new record in Department table'
 
   insert into Department values (10,'SD','System' ,'Cairo',1,'2000-01-01')
+  --------------------------------------------------------------------------------------
 
+  --6. Create a trigger that prevents the insertion Process for 
+  --Employee table in March [Company DB].
+    use Company_SD
+
+	create trigger PreventInsert
+	on employee
+	instead of insert 
+	as
+	begin
+		if MONTH(getdate()) = 3
+			RAISERROR('Inserts to the Employee table are not allowed in March.', 16, 1);
+	end 
+
+	-----------------------------------------------------------------------------
