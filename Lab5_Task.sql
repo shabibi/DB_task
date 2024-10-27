@@ -63,3 +63,41 @@ else
  NewEmployee 102672, 112233, 100
 
   NewEmployee 102672, 512463, 100
+
+  --------------------------------------------------------------------------
+  --4. add column budget in project table and insert any draft values in it 
+  alter table project 
+  add Budget int
+  --set fraft values
+  update Project
+  set Budget = 50000
+
+  --then Create an Audit table with the following structure 
+  create table Audit 
+  (
+	ProjectNo  int
+	foreign key (ProjectNo) references Project(pnumber),
+	UserName nvarchar(100) ,
+	ModifiedDate date,
+	Budget_Old int,
+	Budget_New int 
+
+  )
+  --This table will be used to audit the update trials on the Budget column
+  --(Project table, Company DB)
+  create trigger insertAudit
+  on project
+  after update
+  as
+  begin
+  if update (Budget)
+  begin
+	insert into Audit(ProjectNo, UserName, ModifiedDate, Budget_Old, Budget_New)
+	select i.Pnumber, SYSTEM_USER ,GETDATE(), d.Budget ,i.Budget
+	from inserted i join deleted d on i.Pnumber = d.Pnumber
+  end
+  end
+
+  update Project 
+  set Budget = 20000
+  where Pnumber = 100
