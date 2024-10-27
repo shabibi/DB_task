@@ -35,3 +35,17 @@ as
 select * from displays_Instructor
 
 ----------------------------------------------------------------------------
+--4.  Create a view “V1” that displays student data for
+--student who lives in Alex or Cairo. 
+--Note: Prevent the users to run the following query 
+--Update V1 set st_address=’tanta’
+--Where st_address=’alex’;
+create view displays_student
+as
+	select * from Student
+	where St_Address in ('Alex','Cairo')
+	with check option
+
+select * from displays_student
+
+
