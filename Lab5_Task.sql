@@ -34,3 +34,32 @@ select @NoOfEmp =count(essn) from Works_for where Pno =100
 	end
 
 CheckEmployee
+----------------------------------------------------------------------------------
+
+--3. Create a stored procedure that will be used in case there is an old employee
+--has left the project and a new one become instead of him. The procedure should 
+--take 3 parameters (old Emp. number, new Emp. number and the project number) 
+--and it will be used to update works_on table. [Company DB]
+
+create proc NewEmployee @oldEmpNum int ,@newEmpNum int, @projectNum int 
+as
+declare @existingEmpProj  int
+
+select @existingEmpProj = w.Pno  from Works_for w where w.ESSn = @oldEmpNum
+
+
+if(@existingEmpProj = (select top 1  pno from Works_for where ESSn = @newEmpNum and Pno = @projectNum))
+	select 'This Employee is registered in the same project'
+else if(@existingEmpProj = null)
+	select 'The old employee is not assigned to any project.'
+		
+else
+	begin
+		update Works_for 
+		set ESSn = @newEmpNum where ESSn = @oldEmpNum and Pno = @projectNum
+	end 
+
+	drop proc NewEmployee
+ NewEmployee 102672, 112233, 100
+
+  NewEmployee 102672, 512463, 100
