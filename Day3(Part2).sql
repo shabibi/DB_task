@@ -47,5 +47,18 @@ as
 	with check option
 
 select * from displays_student
+--------------------------------------------------------------------
+--5. Create a view that will display the project
+--name and the number of employees work on it. “Use Company DB”
+use Company_SD
+
+create view display_project (Project_Name, number_of_employees) 
+as
+select p.Pname  ,(select count(w.ESSn) from Works_for w where p.Pnumber = w.Pno)
+from Project p
+
+select * from display_project
+
+
 
 
