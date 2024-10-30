@@ -197,3 +197,64 @@ AS
 	
 EXEC sp_RankGuestsBySpending
 ------------------------------------------------------------------------------
+--5. Triggers 
+
+-->Trigger 1: trg_UpdateRoomAvailability 
+CREATE TRIGGER trg_UpdateRoomAvailability
+ON Booking
+AFTER INSERT
+AS
+BEGIN
+	UPDATE Room
+	set Room_status = 1
+	where RID in (select RID from inserted)
+END
+
+INSERT INTO Booking (Gid, Rid, BDate, CheckIn, CheckOut, BStatus, Total_Cost)
+VALUES 
+(1, 1, '2024-10-29', '2024-10-31', '2024-11-10', 'Confirmed', 500)
+
+--*******************************************************************
+
+-->Trigger 2: trg_CalculateTotalRevenue 
+CREATE TRIGGER trg_CalculateTotalRevenue
+ON Payment
+AFTER INSERT
+AS
+BEGIN
+ 
+	SELECT SUM( p.amount )AS TotalRevenue,H.HotelName
+	FROM Hotel H JOIN Room R ON H.HID = R.HID
+	JOIN Booking B ON R.RID = B.RID
+	JOIN Payment P ON p.BID = B.BID
+	WHERE H.HID IN (SELECT R.HID FROM Room R WHERE R.RID IN 
+			(SELECT B.RID FROM Booking B WHERE B.BID IN
+			(SELECT P.BID FROM inserted P)))
+	GROUP BY H.HotelName
+	
+END
+
+INSERT INTO Payment (BID, PDate, amount, method)
+VALUES 
+(1, '2024-10-02', 250, 'Credit Card')
+--******************************************************************
+
+-->Trigger 3: trg_CheckInDateValidation 
+CREATE TRIGGER trg_CheckInDateValidation
+ON Booking
+INSTEAD OF INSERT
+AS
+BEGIN
+	IF EXISTS (SELECT 1 FROM inserted WHERE CheckIn > CheckOut)
+	BEGIN
+		SELECT ' check-in date greater than the check out date.'
+		RETURN
+	END 
+	INSERT INTO Booking (Gid, Rid, BDate, CheckIn, CheckOut, BStatus, Total_Cost)
+    SELECT Gid, Rid, BDate, CheckIn, CheckOut, BStatus, Total_Cost
+    FROM inserted;
+END
+
+INSERT INTO Booking (Gid, Rid, BDate, CheckIn, CheckOut, BStatus, Total_Cost)
+VALUES 
+(1, 1, '2024-10-01', '2024-10-15', '2024-10-10', 'Confirmed', 500)
