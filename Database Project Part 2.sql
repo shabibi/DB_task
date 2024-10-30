@@ -157,3 +157,42 @@ END
 select dbo.CalculateOccupancyRate(1) AS OccupancyRate
 
 --------------------------------------------------------------------------------
+-- Stored Procedures
+
+-->Stored Procedure 1: sp_MarkRoomUnavailable 
+CREATE PROC sp_MarkRoomUnavailable
+AS
+	UPDATE Room 
+	SET Room_status = 0
+	WHERE RID IN (select B.Rid from Booking B where B.BStatus = 'Confirmed' )
+
+EXEC sp_MarkRoomUnavailable
+
+--*************************************************************************
+
+-->Stored Procedure 2: sp_UpdateBookingStatus 
+CREATE PROC sp_UpdateBookingStatus
+AS
+	UPDATE Booking
+	SET BStatus = 'Check-in' WHERE CheckIn = GETDATE()
+
+	UPDATE Booking
+	SET BStatus = 'Check-out' WHERE CheckOut < GETDATE()
+
+	UPDATE Booking
+	SET BStatus = 'Canceled' WHERE CheckIn > GETDATE()
+
+EXEC sp_UpdateBookingStatus	
+
+--*************************************************************************
+
+-->Stored Procedure 3: sp_RankGuestsBySpending
+CREATE PROC sp_RankGuestsBySpending
+AS
+	SELECT G.GName,B.Total_Cost, RANK() OVER (ORDER BY B.Total_Cost DESC)AS RN
+	FROM Guest G JOIN Booking B
+	ON G.GID = B.Gid
+	
+EXEC sp_RankGuestsBySpending
+
+------------------------------------------------------------------------------
