@@ -189,10 +189,11 @@ EXEC sp_UpdateBookingStatus
 -->Stored Procedure 3: sp_RankGuestsBySpending
 CREATE PROC sp_RankGuestsBySpending
 AS
-	SELECT G.GName,B.Total_Cost, RANK() OVER (ORDER BY B.Total_Cost DESC)AS RN
+	SELECT G.GName,SUM (B.Total_Cost ) AS  Total_Spending  , RANK() OVER (ORDER BY SUM (B.Total_Cost ) DESC)AS RN
 	FROM Guest G JOIN Booking B
 	ON G.GID = B.Gid
+	GROUP BY G.GName
+
 	
 EXEC sp_RankGuestsBySpending
-
 ------------------------------------------------------------------------------
