@@ -1,5 +1,7 @@
 create database HotelBookingSystem
 
+use HotelBookingSystem
+
 create table Hotel
 (
 	HID int identity primary key ,
@@ -33,7 +35,7 @@ create table Booking
 	BID int identity primary key ,
 	BDate date not null,
 	CheckIn DATE NOT NULL ,
-	CheckOut DATE not null,
+	CheckOut DATE not null ,
 	BStatus nvarchar(20) not null check(BStatus in ('Pending', 'Confirmed', 'Canceled', 'Check-in', 'Check-out')),
 	Total_Cost decimal not null,
 	Rid int,
@@ -41,6 +43,9 @@ create table Booking
 	Gid int,
 	foreign key(Gid) references Guest(GID) on delete cascade on update cascade
 )
+alter table Booking 
+add CONSTRAINT CheckOut_CheckIn 
+check (CheckOut >= CheckIn )
 
 create table Payment
 (
