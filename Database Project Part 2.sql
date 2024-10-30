@@ -35,3 +35,66 @@ CREATE NONCLUSTERED INDEX  idx_Status  ON booking(BStatus);
 --for efficient querying of booking schedules.
 CREATE NONCLUSTERED INDEX  idx_composite  ON booking(RID,CheckIn,CheckOut);
 -----------------------------------------------------------------------------------
+
+--2. Views 
+
+-->View 1: ViewTopRatedHotels 
+CREATE VIEW ViewTopRatedHotels(Hotel_Name,Hotel_Rating,Total_Room,Avg_Price)
+AS
+	select H.HotelName,h.HRating ,
+	(select count(RNumber) from Room r where r.Hid = h.HID),
+	(SELECT AVG(PricePerNight) from Room r where r.Hid = h.HID )
+	from Hotel H
+	where h.HRating >= 4.5
+	
+select * from ViewTopRatedHotels
+--****************************************************************
+
+--> View 2: ViewGuestBookings 
+CREATE VIEW ViewGuestBookings(Guest_Name, NumberOfBooking,Total_Cost)
+AS
+	SELECT G.GName ,
+	(SELECT COUNT(GID) FROM Booking B where G.GID = B.GID ),
+	(SELECT SUM(Total_Cost) FROM Booking B where G.GID = B.GID )
+	FROM Guest G
+
+SELECT * FROM ViewGuestBookings
+--****************************************************************
+
+-->View 3: ViewAvailableRooms 
+CREATE VIEW ViewAvailableRooms(Hotel_Name, Room_Type,Price_Per_Night )
+AS
+	SELECT  H.HotelName,R.RoomType,R.PricePerNight
+	FROM Hotel H JOIN Room R ON R.HID = H.HID
+	WHERE R.Room_status = 1
+
+SELECT * FROM ViewAvailableRooms
+ORDER BY Price_Per_Night
+
+--*********************************************************************
+
+-->View 4: ViewBookingSummary 
+CREATE VIEW ViewBookingSummary(HotelName, Number_ofBookings,Confirmed,Pending ,Canceled)
+AS
+	SELECT H.HotelName,COUNT(B.BID), 
+	SUM (CASE WHEN B.BStatus = 'Confirmed' THEN 1 ELSE 0 END),
+	SUM (CASE WHEN B.BStatus = 'Pending' THEN 1 ELSE 0 END),
+	SUM (CASE WHEN B.BStatus = 'Canceled' THEN 1 ELSE 0 END)
+	FROM Hotel H LEFT JOIN Room R ON H.HID = R.HID
+	LEFT JOIN Booking B ON B.RID = R.RID
+	GROUP BY H.HotelName
+
+	SELECT * FROM ViewBookingSummary
+--*********************************************************************
+CREATE VIEW ViewPaymentHistory(HotelName,Guest_Naame,Booking_Status,Total_Payment )
+AS
+-->View 5: ViewPaymentHistory 
+SELECT DISTINCT H.HotelName,G.GName,B.BStatus,P.amount
+FROM Payment P JOIN Booking B on P.BId = B.BID
+JOIN Room R on R.RID = B.RID 
+JOIN Hotel H on R.HID =H.HID
+JOIN Guest G ON G.GID =B.GID
+
+select * from ViewPaymentHistory
+
+-------------------------------------------------------------------------------------------
