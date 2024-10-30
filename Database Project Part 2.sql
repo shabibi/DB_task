@@ -98,3 +98,62 @@ JOIN Guest G ON G.GID =B.GID
 select * from ViewPaymentHistory
 
 -------------------------------------------------------------------------------------------
+-->3. Functions 
+
+--Function 1: GetHotelAverageRating 
+CREATE FUNCTION GetHotelAverageRating(@HotelID INT)
+RETURNS DECIMAL
+BEGIN
+	DECLARE @Avrge decimal 
+	SELECT @Avrge = AVG(Review_Rating) FROM Review
+	where HID = @HotelID
+	return @Avrge
+END
+
+select dbo.GetHotelAverageRating(1) AS AverageRating
+--*********************************************************************
+-->Function 2: GetNextAvailableRoom 
+CREATE FUNCTION GetNextAvailableRoom(@HotelID INT,@Room_type varchar(10))
+RETURNS INT
+BEGIN
+	declare @Room_Number INT
+	select  @Room_Number = RNumber 
+	from Room
+	where  HID = @HotelID AND RoomType = @Room_type AND Room_status = 1
+	RETURN @Room_Number
+END
+
+SELECT dbo.GetNextAvailableRoom(2,'Single') as AvailableRoom
+
+--*********************************************************************
+
+-->• Function 3: CalculateOccupancyRate
+CREATE FUNCTION CalculateOccupancyRate(@HotelID INT)
+RETURNS DECIMAL 
+AS
+BEGIN
+	DECLARE @Booked int
+	DECLARE @TotalRoom int
+	DECLARE @OccupancyRate decimal
+
+	--count the total rooms in the given hotel
+	select @TotalRoom = count(RID) from Room
+	where Hid = @HotelID
+
+	--count the booked room in tge given hotel whithen last 30 days
+	select @Booked = count(Rid)
+	from Booking
+	where Rid in (select Rid from Room where Hid = @HotelID)
+	and BDate >= DATE_BUCKET(day,30, getdate())
+
+	if(@TotalRoom != 0)
+		set @OccupancyRate = (@Booked *100 ) /@TotalRoom
+	else 
+		set @OccupancyRate = 0
+	
+	RETURN @OccupancyRate
+END
+
+select dbo.CalculateOccupancyRate(1) AS OccupancyRate
+
+--------------------------------------------------------------------------------
